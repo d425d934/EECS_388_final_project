@@ -128,6 +128,7 @@ static void led_timer_init()
  *******************************************************************************/
 static void auto_brake(uint16_t distance)
 {
+<<<<<<< HEAD
     brake_state_t new_state;
 
     if (distance > SAFE_DIST)
@@ -152,6 +153,33 @@ static void auto_brake(uint16_t distance)
         brake_state = new_state;    /* single byte write -> atomic on AVR */
         ser_printf("Distance: %u cm -> state %d", distance, (int)new_state);
     }
+=======
+  char distance = ser_read();
+
+  if (distance == 'G')
+    {
+    gpio_write(GPIO_13, LOW); //RED
+    gpio_write(GPIO_12, HIGH);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+  else if (distance == 'Y')
+    {
+    gpio_write(GPIO_13, HIGH); //RED
+    gpio_write(GPIO_12, HIGH);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+  else if (distance == 'R')
+    {
+    gpio_write(GPIO_13, HIGH); //RED
+    gpio_write(GPIO_12, LOW);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+    
+    
+      // Task-2: 
+    // Your code goes here (Use Lab 2 & 4 for reference)
+    // Check the project document to understand the task
+>>>>>>> 8feb2852f0f5d403dfaa34dc90f6ba0bf0a5c6cf
 }
 
 
