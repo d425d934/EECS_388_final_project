@@ -52,7 +52,7 @@ while( 1 )
     if ('Y' == ser_read() && 'Y' == ser_read()) 
         {
         /* 
-
+            
             - print the measured value to the console (i.e. the serial monitor) 
             - You can use ser_printf() or ser_printline() or ser_write()
             
@@ -62,6 +62,17 @@ while( 1 )
 
 			- Send the distance to Arduino2
         */
+        unit8_t dist_L = ser_read();
+        unit8_t dist_H = ser_read();
+        unit8_t strength_L = ser_read();
+        unit8_t strength_H = ser_read();
+        unit8_t RSVD = ser_read();
+        unit8_t quality = ser_read();
+        unit8_t chksum = ser_read();
+
+        uint16_t tot_distancce = dist_L || (dist_H << 8);
+
+        ser_printline("Distance to object: %d", tot_distancce);
         }
     }
 
