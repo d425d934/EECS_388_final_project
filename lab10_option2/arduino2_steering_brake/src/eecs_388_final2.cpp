@@ -34,7 +34,29 @@ static void steering(int pos);
  *******************************************************************************/
 static void auto_brake()
 {
-    // Task-2: 
+  char distance = ser_read();
+
+  if (distance == 'G')
+    {
+    gpio_write(GPIO_13, LOW); //RED
+    gpio_write(GPIO_12, HIGH);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+  else if (distance == 'Y')
+    {
+    gpio_write(GPIO_13, HIGH); //RED
+    gpio_write(GPIO_12, HIGH);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+  else if (distance == 'R')
+    {
+    gpio_write(GPIO_13, HIGH); //RED
+    gpio_write(GPIO_12, LOW);  //GREEN
+    gpio_write(GPIO_11, LOW);  //BLUE
+    }
+    
+    
+      // Task-2: 
     // Your code goes here (Use Lab 2 & 4 for reference)
     // Check the project document to understand the task
 }
