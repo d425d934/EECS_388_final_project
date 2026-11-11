@@ -84,6 +84,7 @@ while( 1 )
             distance_data = 'U'; //U for urgent
         }
         }
+        delay_ms(200);
     }
 
 return;
