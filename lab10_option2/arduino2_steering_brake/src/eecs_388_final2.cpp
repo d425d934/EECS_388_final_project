@@ -18,7 +18,6 @@
 #define MIN_ANGLE       (0)       /* degrees */
 #define MAX_ANGLE       (180)     /* degrees */
 
-
 /******************************************************************************
  *   Local function prototypes
  *******************************************************************************/
@@ -37,6 +36,31 @@ static void auto_brake()
     // Task-2: 
     // Your code goes here (Use Lab 2 & 4 for reference)
     // Check the project document to understand the task
+char distance_data = ser_read();
+
+if (distance_data == 'G'){
+  gpio_write(GPIO_13, LOW);
+  gpio_write(GPIO_12, HIGH);
+  gpio_write(GPIO_11, LOW);
+} else if (distance_data == 'Y'){
+  gpio_write(GPIO_13, HIGH);
+  gpio_write(GPIO_12, HIGH);
+  gpio_write(GPIO_11, LOW);
+} else if (distance_data == 'R'){
+  gpio_write(GPIO_13, HIGH);
+  gpio_write(GPIO_12, LOW);
+  gpio_write(GPIO_11, LOW);
+} else if (distance_data == 'U'){
+  gpio_write(GPIO_12, LOW);
+  gpio_write(GPIO_11, LOW);
+
+  for (int i = 0; i < 2; i++){
+    gpio_write(GPIO_13, HIGH);
+    delay_ms(50);
+    gpio_write(GPIO_13, LOW);
+    delay_ms(50);
+  }
+}
 }
 
 

@@ -83,8 +83,10 @@ while( 1 )
         } else {
             distance_data = 'U'; //U for urgent
         }
-        }
+        ser_write(distance_data);
         delay_ms(200);
+        }
+        
     }
 
 return;
