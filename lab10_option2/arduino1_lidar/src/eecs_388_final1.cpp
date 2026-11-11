@@ -51,6 +51,7 @@ while( 1 )
     */
     if ('Y' == ser_read() && 'Y' == ser_read()) 
         {
+        char distance_data;
         /* 
             
             - print the measured value to the console (i.e. the serial monitor) 
@@ -73,6 +74,15 @@ while( 1 )
         uint16_t tot_distancce = dist_L || (dist_H << 8);
 
         ser_printline("Distance to object: %d", tot_distancce);
+        if (tot_distance > 200){
+            distance_data = 'G';
+        } else if (tot_distance > 100){
+            distance_data = 'Y';
+        } else if (tot_distance > 60) {
+            distance_data = 'R';
+        } else {
+            distance_data = 'U'; //U for urgent
+        }
         }
     }
 
