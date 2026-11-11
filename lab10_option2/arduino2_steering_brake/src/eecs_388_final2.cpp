@@ -18,140 +18,22 @@
 #define MIN_ANGLE       (0)       /* degrees */
 #define MAX_ANGLE       (180)     /* degrees */
 
-/*Auto-brake LED pins*/
-#define LED_RED         GPIO_13
-#define LED_GREEN       GPIO_12
-#define LED_BLUE        GPIO_11
-
-/*Auto-brake distance thresholds (cm)*/
-#define SAFE_DIST       (200)     /* d > 200        -> safe        */
-#define LIGHT_DIST      (100)     /* 100 < d <= 200 -> brake light */
-#define HARD_DIST       (60)      /* 60 < d <= 100  -> brake hard  */
-                                  /* d <= 60        -> must stop   */
-
-/*LED timer: Timer1 in CTC mode, prescaler 256 -> 62500 ticks/s (16us/tick)
-  50ms tick -> red LED toggles every 50ms -> flashing period = 100ms*/
-#define LED_TICK_MS     (50)
-#define TIMER1_OCR      ((F_CPU / 256UL / 1000UL) * LED_TICK_MS - 1)
-
-/*Test mode: cycle through fake distances until Task 3 (receiving from
-  arduino1) is done. Set to 0 once real distances are coming in.*/
-#define USE_TEST_DISTANCES (1)
-#define TEST_HOLD_MS       (3000)
-
-typedef enum
-{
-    SAFE_STATE,       /* Green           */
-    BRAKE_LIGHTLY,    /* Yellow (R + G)  */
-    BRAKE_HARD,       /* Red             */
-    UNSAFE_STATE      /* Flashing red    */
-} brake_state_t;
-
-/******************************************************************************
- *   Global variables
- *******************************************************************************/
-/*Shared with the timer ISR, so it must be volatile*/
-static volatile brake_state_t brake_state = SAFE_STATE;
 
 /******************************************************************************
  *   Local function prototypes
  *******************************************************************************/
-static void auto_brake(uint16_t distance);
+static void auto_brake();
 static void steering(int pos);
-static void led_timer_init();
-
-/******************************************************************************
- *   Function: ISR(TIMER1_COMPA_vect) - LED update timer
- *      Pre condition:
- *          led_timer_init() has been called
- *      Post condition:
- *          Fires every LED_TICK_MS and drives the LEDs from brake_state.
- *          In UNSAFE_STATE the red LED is toggled to make it flash.
- *******************************************************************************/
-ISR(TIMER1_COMPA_vect)
-{
-    static uint8_t flash_on = 0;
-
-    switch (brake_state)
-    {
-        case SAFE_STATE:
-            gpio_write(LED_RED,   OFF);
-            gpio_write(LED_GREEN, ON);
-            break;
-
-        case BRAKE_LIGHTLY:
-            gpio_write(LED_RED,   ON);
-            gpio_write(LED_GREEN, ON);
-            break;
-
-        case BRAKE_HARD:
-            gpio_write(LED_RED,   ON);
-            gpio_write(LED_GREEN, OFF);
-            break;
-
-        case UNSAFE_STATE:
-        default:
-            flash_on = !flash_on;
-            gpio_write(LED_RED,   flash_on ? ON : OFF);
-            gpio_write(LED_GREEN, OFF);
-            break;
-    }
-
-    gpio_write(LED_BLUE, OFF);
-}
-
-/******************************************************************************
- *   Function: led_timer_init() - Configure Timer1 for the LED ISR
- *      Pre condition:
- *          None
- *      Post condition:
- *          Timer1 generates a compare-match interrupt every LED_TICK_MS
- *******************************************************************************/
-static void led_timer_init()
-{
-    cli();
-    TCCR1A = 0;                             /* normal port operation       */
-    TCCR1B = (1 << WGM12) | (1 << CS12);    /* CTC mode, prescaler 256     */
-    TCNT1  = 0;
-    OCR1A  = TIMER1_OCR;                    /* 3124 -> 50ms                */
-    TIMSK1 = (1 << OCIE1A);                 /* enable compare A interrupt  */
-    sei();
-}
 
 /******************************************************************************
  *   Function: auto_brake() - Auto Brake
- *      Pre condition:
+ *      Pre condition: 
  *          None
- *      Post condition:
- *          Checks the LiDAR distance and sets the braking state.
- *          The LEDs themselves are driven by the Timer1 ISR.
+ *      Post condition: 
+ *          Checks the LiDAR distance and configures LEDs
  *******************************************************************************/
-static void auto_brake(uint16_t distance)
+static void auto_brake()
 {
-    brake_state_t new_state;
-
-    if (distance > SAFE_DIST)
-    {
-        new_state = SAFE_STATE;
-    }
-    else if (distance > LIGHT_DIST)
-    {
-        new_state = BRAKE_LIGHTLY;
-    }
-    else if (distance > HARD_DIST)
-    {
-        new_state = BRAKE_HARD;
-    }
-    else
-    {
-        new_state = UNSAFE_STATE;
-    }
-
-    if (new_state != brake_state)
-    {
-        brake_state = new_state;    /* single byte write -> atomic on AVR */
-        ser_printf("Distance: %u cm -> state %d", distance, (int)new_state);
-    }
     // Task-2: 
     // Your code goes here (Use Lab 2 & 4 for reference)
     // Check the project document to understand the task
@@ -187,12 +69,9 @@ void setup()
 uart_init();     // Initialize UART for serial output
 
 //Setup Auto-break LEDs for Distance
-gpio_mode(LED_RED,   GPIO_OUTPUT); //RED
-gpio_mode(LED_GREEN, GPIO_OUTPUT); //GREEN
-gpio_mode(LED_BLUE,  GPIO_OUTPUT); //BLUE
-
-//Timer1 ISR updates the brake LEDs every 50ms
-led_timer_init();
+gpio_mode(GPIO_13, GPIO_OUTPUT); //RED
+gpio_mode(GPIO_12, GPIO_OUTPUT); //GREEN
+gpio_mode(GPIO_11, GPIO_OUTPUT); //BLUE
 
 //Setup GPIO_6 for PWM output
 gpio_mode(GPIO_6, GPIO_OUTPUT);
@@ -216,23 +95,7 @@ int angle;
 
 // Task-1&2:
 // Receive data from arudino1 for the distance and setup the LEDs
-#if USE_TEST_DISTANCES
-// Until Task 3 is done, step through one distance from each braking range
-static const uint16_t test_distances[] = {250, 150, 80, 40};
-static uint8_t test_idx = 0;
-static unsigned long last_change = 0;
-
-if (millis() - last_change >= TEST_HOLD_MS)
-  {
-  last_change = millis();
-  test_idx = (test_idx + 1) % (sizeof(test_distances) / sizeof(test_distances[0]));
-  }
-auto_brake(test_distances[test_idx]);
-#else
-// Task-3: replace with the distance received from arduino1
-uint16_t distance = 0;
-auto_brake(distance);
-#endif
+auto_brake();
 
 //  Task-4:
 for (int i = 0; i < 10; i++)
