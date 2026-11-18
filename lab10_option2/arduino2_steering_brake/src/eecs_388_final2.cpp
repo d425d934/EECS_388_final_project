@@ -39,25 +39,25 @@ static void auto_brake()
 char distance_data = ser_read();
 
 if (distance_data == 'G'){
-  gpio_write(GPIO_13, LOW);
-  gpio_write(GPIO_12, HIGH);
-  gpio_write(GPIO_11, LOW);
+  gpio_write(GPIO_13, OFF);
+  gpio_write(GPIO_12, ON);
+  gpio_write(GPIO_11, OFF);
 } else if (distance_data == 'Y'){
-  gpio_write(GPIO_13, HIGH);
-  gpio_write(GPIO_12, HIGH);
-  gpio_write(GPIO_11, LOW);
+  gpio_write(GPIO_13, ON);
+  gpio_write(GPIO_12, ON);
+  gpio_write(GPIO_11, OFF);
 } else if (distance_data == 'R'){
-  gpio_write(GPIO_13, HIGH);
-  gpio_write(GPIO_12, LOW);
-  gpio_write(GPIO_11, LOW);
+  gpio_write(GPIO_13, ON);
+  gpio_write(GPIO_12, OFF);
+  gpio_write(GPIO_11, OFF);
 } else if (distance_data == 'U'){
-  gpio_write(GPIO_12, LOW);
-  gpio_write(GPIO_11, LOW);
+  gpio_write(GPIO_12, OFF);
+  gpio_write(GPIO_11, OFF);
 
   for (int i = 0; i < 2; i++){
-    gpio_write(GPIO_13, HIGH);
+    gpio_write(GPIO_13, ON);
     delay_ms(50);
-    gpio_write(GPIO_13, LOW);
+    gpio_write(GPIO_13, OFF);
     delay_ms(50);
   }
 }
