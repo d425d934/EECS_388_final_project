@@ -76,6 +76,13 @@ static void steering(int pos)
     // Task-4: 
     // Your code goes here (Use Lab 05 for reference)
     // Check the project document to understand the task
+    uint32_t on_width = 10 * pos + SERVO_PULSE_MIN;
+    gpio_write(GPIO_6, ON);
+    delay_us(on_width);
+    gpio_write(GPIO_6, OFF);
+    delay_us(16000);
+    delay_us(4000 - on_width);
+    return;
     
 }
 
@@ -116,6 +123,7 @@ void loop()
 {
 // Task-4: 
 // Setup simulated code for the angles from the lab sheet
+int angle_values[11] = {10, 25, 75, 45, 100, 40, 125, 15, 150, 50, 170};
 int angle;
 
 // Task-1&2:
@@ -131,14 +139,10 @@ for (int i = 0; i < 10; i++)
   // You are welcome to pass the angle values directly to the steering function.
   // If the servo function is written correctly, it should still work,
   // only the movements of the servo will be more subtle
-  if( angle > 0 )
-    {
-    steering(180);
-    }
-  else 
-    {
-    steering(0);
-    }
+  for (int j = 0; j < 50; j++){
+    angle = angle_values[i];
+    steering(angle);
+  }
            
   // Uncomment the line below to see the actual angles on the servo.
   // Remember to comment out the if-else statement above!
