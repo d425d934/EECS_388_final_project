@@ -32,7 +32,7 @@ return;
  *******************************************************************************/
 void loop() 
 {
-uint16_t dist = 0;              /* LIDAR distance data is 16 bits. */
+uint16_t dist;              /* LIDAR distance data is 16 bits. */
 
 ser_printline("Setup completed.");
 ser_write( '\n' );
@@ -63,28 +63,28 @@ while( 1 )
 
 			- Send the distance to Arduino2
         */
-        unit8_t dist_L = ser_read();
-        unit8_t dist_H = ser_read();
-        unit8_t strength_L = ser_read();
-        unit8_t strength_H = ser_read();
-        unit8_t RSVD = ser_read();
-        unit8_t quality = ser_read();
-        unit8_t chksum = ser_read();
+        uint8_t dist_L = ser_read();
+        uint8_t dist_H = ser_read();
+        uint8_t strength_L = ser_read();
+        uint8_t strength_H = ser_read();
+        uint8_t RSVD = ser_read();
+        uint8_t quality = ser_read();
+        uint8_t chksum = ser_read();
 
-        uint16_t tot_distancce = dist_L || (dist_H << 8);
-
-        ser_printline("Distance to object: %d", tot_distancce);
-        if (tot_distance > 200){
+        dist = dist_L | (dist_H << 8);
+        
+        if (dist > 200){
             distance_data = 'G';
-        } else if (tot_distance > 100){
+        } else if (dist > 100){
             distance_data = 'Y';
-        } else if (tot_distance > 60) {
+        } else if (dist > 60) {
             distance_data = 'R';
         } else {
             distance_data = 'U'; //U for urgent
         }
         ser_write(distance_data);
-        delay_ms(200);
+        ser_printf("Distance to object: %d", dist);
+        //delay_ms(200);
         }
         
     }
