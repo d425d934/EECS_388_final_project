@@ -84,7 +84,6 @@ while( 1 )
         }
         ser_write(distance_data);
         ser_printf("Distance to object: %d", dist);
-        //delay_ms(200);
         }
         
     }

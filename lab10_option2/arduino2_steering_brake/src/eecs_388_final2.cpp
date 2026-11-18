@@ -54,7 +54,7 @@ if (distance_data == 'G'){
   gpio_write(GPIO_12, OFF);
   gpio_write(GPIO_11, OFF);
 
-  for (int i = 0; i < 2; i++){
+  while (distance_data == 'U'){
     gpio_write(GPIO_13, ON);
     delay_ms(50);
     gpio_write(GPIO_13, OFF);
@@ -140,12 +140,12 @@ for (int i = 0; i < 10; i++)
   // If the servo function is written correctly, it should still work,
   // only the movements of the servo will be more subtle
   for (int j = 0; j < 50; j++){
+    
     angle = angle_values[i];
     steering(angle);
   }
            
   // Uncomment the line below to see the actual angles on the servo.
   // Remember to comment out the if-else statement above!
-  // steering(angle);
   }
 }
